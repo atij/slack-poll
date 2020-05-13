@@ -67,9 +67,6 @@ func command(c *gin.Context) {
 		return
 	}
 
-	
-
-
 	c.JSON(200, gin.H{
 		"message": "command route called!",
 	})
@@ -91,11 +88,18 @@ func StartApplication() {
 		log.Fatalf("Error loading .env file")
 	}
 
-	var router = gin.Default()
+	port := os.Getenv("APP_PORT")
+
+	if port == "" {
+		port = "8080"
+		log.Printf("Defaulting to port %s", port)
+	}
+
+	var router = gin.New()
 
 	router.GET("/readyz", readyz)
 	router.GET("/healthz", healthz)
 	router.POST("/slack/command", command)
 
-	router.Run(":8080")
+	router.Run(":" + port)
 }
