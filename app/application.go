@@ -88,7 +88,7 @@ func StartApplication() {
 		log.Fatalf("Error loading .env file")
 	}
 
-	port := os.Getenv("APP_PORT")
+	port := os.Getenv("PORT")
 
 	if port == "" {
 		port = "8080"

@@ -1,3 +1,6 @@
 # app engine service name
 service: slack-poll
 runtime: go113
+
+env_variables:
+  SLACK_TOKEN=XXXXX
