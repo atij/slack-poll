@@ -3,4 +3,4 @@ service: slack-poll
 runtime: go113
 
 env_variables:
-  SLACK_TOKEN=XXXXX
+  SLACK_TOKEN XXXXX
