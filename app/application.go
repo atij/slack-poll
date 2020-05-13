@@ -2,6 +2,7 @@ package app
 
 import (
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -46,9 +47,39 @@ type commandPayload struct {
 */
 
 func command(c *gin.Context) {
+
+	// unmarshal
+	var p commandPayload
+	if c.BindJSON(&p) != nil {
+		c.String(200, "invalid payload")
+		return
+	}
+
+	// validate token
+	if !isTokenValid(&p) {
+		c.String(200, "Looks like your token is invalid, check application config.")
+		return
+	}
+
+	// help section
+	if p.Text == "help" {
+		c.String(200, "Use `/poll` to create simple poll. Example: /poll \"Poll question?\" \"Option 1\" \"Option 2\" \"Option 3\"")
+		return
+	}
+
+	
+
+
 	c.JSON(200, gin.H{
 		"message": "command route called!",
 	})
+}
+
+func isTokenValid(p *commandPayload) bool {
+	if p.Token != os.Getenv("SLACK_TOKEN") {
+		return false
+	}
+	return true
 }
 
 // StartApplication ...
@@ -61,7 +92,6 @@ func StartApplication() {
 	}
 
 	var router = gin.Default()
-	router.Use(tokenValidator())
 
 	router.GET("/readyz", readyz)
 	router.GET("/healthz", healthz)
