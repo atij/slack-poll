@@ -1,8 +1,10 @@
 package app
 
 import (
+	"bytes"
 	"encoding/json"
 	"log"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -110,5 +112,10 @@ func pollActions(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, getPollResponse(poll))
+	res, _ := json.Marshal(getPollResponse(poll))
+	http.Post(cp.ResponseURL, "application/json", bytes.NewBuffer(res))
+
+	c.JSON(200, gin.H{
+		"messaage": "thank you",
+	})
 }

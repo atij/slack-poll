@@ -100,6 +100,7 @@ func getPollResponse(p *model.Poll) gin.H {
 
 	res := gin.H{
 		"response_type": "ephemeral",
+		"replace_original": "true",
 	}
 
 	var blocks []gin.H
