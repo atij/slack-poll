@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/atij/slack-poll/model"
+	"github.com/slack-go/slack"
 )
 
 func cleanDoubleQuotes(i string) string {
@@ -20,7 +21,7 @@ func splitOptions(s string) []string {
 	return res
 }
 
-func createPoll(p *commandPayload, options []string) (*model.Poll, error) {
+func createPoll(c *slack.SlashCommand, options []string) (*model.Poll, error) {
 	
 	var opts []model.PollOption
 	for _, item := range options[1:] {
@@ -31,8 +32,8 @@ func createPoll(p *commandPayload, options []string) (*model.Poll, error) {
 
 	return &model.Poll{
 		Text: options[0],
-		Channel: p.ChannelName,
-		Owner: p.UserName,
+		Channel: c.ChannelName,
+		Owner: c.UserName,
 		Title: options[0],
 		Options: opts,
 	}, nil

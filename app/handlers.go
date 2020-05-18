@@ -11,6 +11,7 @@ import (
 	"github.com/atij/slack-poll/model"
 	"github.com/atij/slack-poll/repository"
 	"github.com/gin-gonic/gin"
+	"github.com/slack-go/slack"
 )
 
 func readyz(c *gin.Context) {
@@ -26,28 +27,26 @@ func healthz(c *gin.Context) {
 }
 
 func command(c *gin.Context) {
-
-	// unmarshal
-	var p commandPayload
-	if c.Bind(&p) != nil {
-		c.String(200, "invalid payload")
+	sc, err := slack.SlashCommandParse(c.Request)
+	if err != nil {
+		c.String(400, "failed to parse slash command")
 		return
 	}
 
 	// help section
-	if p.Text == "help" {
-		getHelpReponse(c)
+	if sc.Text == "help" {
+		c.JSON(200, getHelpReponse(c))
 		return
 	}
 
 	// clear quoutes
-	p.Text = cleanDoubleQuotes(p.Text)
+	sc.Text = cleanDoubleQuotes(sc.Text)
 
 	// split options
-	options := splitOptions(p.Text)
+	options := splitOptions(sc.Text)
 
 	// create poll
-	poll, err := createPoll(&p, options)
+	poll, err := createPoll(&sc, options)
 	if err != nil {
 		c.JSON(200, gin.H{
 			"message": err,
@@ -66,6 +65,7 @@ func command(c *gin.Context) {
 }
 
 func pollActions(c *gin.Context) {
+
 	// unmarshal
 	var p payload
 	if err := c.Bind(&p); err != nil {
@@ -76,18 +76,16 @@ func pollActions(c *gin.Context) {
 
 	p.Data, _ = url.QueryUnescape(p.Data)
 
-	var cp actionPayload
-	json.Unmarshal([]byte(p.Data), &cp)
+	var ic slack.InteractionCallback
 
-	// get poll id
-	if len(cp.Actions) == 0 {
-		c.JSON(400, gin.H{
-			"message": "empty actions  not allowed",
-		})
+	json.Unmarshal([]byte(p.Data), &ic)
+
+	if len(ic.ActionCallback.BlockActions) == 0 {
+		c.JSON(400, gin.H{"message": "empty actions  not allowed"})
 		return
 	}
 
-	a := cp.Actions[0]
+	a := ic.ActionCallback.BlockActions[0]
 	pollID := strings.Split(a.ActionID, "::")[0]
 
 	db := c.MustGet("db").(*repository.FirestoreRepository)
@@ -100,8 +98,8 @@ func pollActions(c *gin.Context) {
 	}
 
 	v := model.Vote{
-		UserID:   cp.User.ID,
-		UserName: cp.User.Username,
+		UserID:   ic.User.ID,
+		UserName: ic.User.Name,
 	}
 
 	poll.AddVote(a.Value, v)
@@ -113,9 +111,7 @@ func pollActions(c *gin.Context) {
 	}
 
 	res, _ := json.Marshal(getPollResponse(poll))
-	http.Post(cp.ResponseURL, "application/json", bytes.NewBuffer(res))
+	http.Post(ic.ResponseURL, "application/json", bytes.NewBuffer(res))
 
-	c.JSON(200, gin.H{
-		"messaage": "thank you",
-	})
+	c.JSON(200, "success!")
 }
