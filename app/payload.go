@@ -56,7 +56,7 @@ func getPollResponse(p *model.Poll) *slack.Message {
 
 		var voters []slack.MixedElement
 		for _, v := range item.Votes {
-			voters = append(voters, *slack.NewImageBlockElement("https://api.slack.com/img/blocks/bkb_template_images/profile_1.png", v.UserName))
+			voters = append(voters, *slack.NewImageBlockElement(v.Avatar, v.UserName))
 		}
 		if len(voters) != 0 {
 			ct := slack.NewContextBlock(item.Title + " voters", voters...)

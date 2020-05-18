@@ -22,6 +22,7 @@ type PollOption struct {
 type Vote struct {
 	UserID   string
 	UserName string
+	Avatar   string
 }
 
 // AddVote ...

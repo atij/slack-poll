@@ -91,15 +91,20 @@ func pollActions(c *gin.Context) {
 	db := c.MustGet("db").(*repository.FirestoreRepository)
 	poll, err := db.Find(pollID)
 	if err != nil {
-		c.JSON(401, gin.H{
-			"message": "poll not found",
-		})
+		c.JSON(401, gin.H{"message": "poll not found"})
+		return
+	}
+
+	profile, err := getUser(ic.User.ID)
+	if err != nil {
+		c.JSON(403, err)
 		return
 	}
 
 	v := model.Vote{
 		UserID:   ic.User.ID,
 		UserName: ic.User.Name,
+		Avatar: profile.Image24,
 	}
 
 	poll.AddVote(a.Value, v)

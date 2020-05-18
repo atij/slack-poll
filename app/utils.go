@@ -1,6 +1,7 @@
 package app
 
 import (
+	"os"
 	"strings"
 
 	"github.com/atij/slack-poll/model"
@@ -38,4 +39,14 @@ func createPoll(c *slack.SlashCommand, options []string) (*model.Poll, error) {
 		Options: opts,
 	}, nil
 
+}
+
+func getUser(id string) (*slack.UserProfile, error) {
+	client := slack.New(os.Getenv("SLACK_TOKEN"))
+	profile, err := client.GetUserProfile(id, false)
+	if err != nil {
+		return nil, err
+	}
+
+	return profile, nil
 }
