@@ -103,7 +103,7 @@ func pollActions(c *gin.Context) {
 
 	v := model.Vote{
 		UserID:   ic.User.ID,
-		UserName: ic.User.Name,
+		UserName: profile.RealName,
 		Avatar: profile.Image24,
 	}
 

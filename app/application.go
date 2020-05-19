@@ -12,12 +12,12 @@ import (
 )
 
 func initDB() (*repository.FirestoreRepository, error) {
-	c, err := firestore.NewClient(context.Background(), "am-sigma")
+	c, err := firestore.NewClient(context.Background(), os.Getenv("GOOGLE_APPLICATION_PROJECT_ID"))
 	if err != nil {
 		return nil, err
 	}
 
-	db, err := repository.NewFirestoreRepository(c, "test-poll")
+	db, err := repository.NewFirestoreRepository(c, os.Getenv("FIRESTORE_COLLECTION"))
 	return db, nil
 }
 
