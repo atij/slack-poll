@@ -71,6 +71,7 @@ func getPollResponse(p *model.Poll) *slack.Message {
 
 	msg := slack.NewBlockMessage(blocks...)
 	msg.Msg.ReplaceOriginal = true
+	msg.Msg.ResponseType = slack.ResponseTypeInChannel
 
 	return &msg
 }

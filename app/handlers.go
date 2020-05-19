@@ -107,7 +107,11 @@ func pollActions(c *gin.Context) {
 		Avatar: profile.Image24,
 	}
 
-	poll.AddVote(a.Value, v)
+	if poll.HasVote(a.Value, v) {
+		poll.RemoveVote(a.Value, v)
+	} else {
+		poll.AddVote(a.Value, v)
+	}
 
 	err = db.Update(poll.ID, poll)
 	if err != nil {

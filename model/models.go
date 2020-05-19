@@ -35,3 +35,30 @@ func (p *Poll) AddVote(pollOption string, v Vote) error {
 	}
 	return errors.New("no poll option found")
 }
+
+// HasVote ...
+func (p *Poll) HasVote(pollOption string, v Vote) bool {
+	for _, item := range p.Options {
+		if item.Title == pollOption {
+			for _, vote := range item.Votes {
+				if vote.UserID == v.UserID {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
+// RemoveVote ...
+func (p *Poll) RemoveVote(pollOption string, v Vote) {
+	for i, item := range p.Options {
+		if item.Title == pollOption {
+			for j, vote := range item.Votes {
+				if vote.UserID == v.UserID {
+					p.Options[i].Votes = append(p.Options[i].Votes[:j], p.Options[i].Votes[j+1:]...)
+				}
+			}
+		}
+	}
+}
