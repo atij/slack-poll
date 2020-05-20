@@ -27,7 +27,7 @@ func getHelpReponse(c *gin.Context) *slack.Message {
 			nil,
 		),
 		slack.NewSectionBlock(
-			slack.NewTextBlockObject("mrkdwn", "\n/am-poll \"What's your favourite color ?\" \"Red\" \"Green\" \"Blue\" \"Yellow\"\n", false, false),
+			slack.NewTextBlockObject("mrkdwn", "\n/poll \"What's your favourite color ?\" \"Red\" \"Green\" \"Blue\" \"Yellow\"\n", false, false),
 			nil,
 			nil,
 		),
@@ -38,7 +38,7 @@ func getHelpReponse(c *gin.Context) *slack.Message {
 			nil,
 		),
 		slack.NewSectionBlock(
-			slack.NewTextBlockObject("mrkdwn", "\n/am-poll \"What's your favourite color ?\" \"Red\" \"Green\" \"Blue\" \"Yellow\" anonymous\n", false, false),
+			slack.NewTextBlockObject("mrkdwn", "\n/poll \"What's your favourite color ?\" \"Red\" \"Green\" \"Blue\" \"Yellow\" anonymous\n", false, false),
 			nil,
 			nil,
 		),
