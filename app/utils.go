@@ -34,7 +34,10 @@ func createPoll(c *slack.SlashCommand, options []string) (*model.Poll, error) {
 	return &model.Poll{
 		Text: options[0],
 		Channel: c.ChannelName,
-		Owner: c.UserName,
+		Owner: model.Owner{
+			UserID: c.UserID,
+			UserName: c.UserName,
+		},
 		Title: options[0],
 		Options: opts,
 	}, nil

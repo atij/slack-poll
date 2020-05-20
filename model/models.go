@@ -6,7 +6,7 @@ import "errors"
 type Poll struct {
 	ID      string
 	Text    string
-	Owner   string
+	Owner   Owner
 	Channel string
 	Title   string
 	Options []PollOption
@@ -23,6 +23,12 @@ type Vote struct {
 	UserID   string
 	UserName string
 	Avatar   string
+}
+
+// Owner ...
+type Owner struct {
+	UserID   string
+	UserName string
 }
 
 // AddVote ...

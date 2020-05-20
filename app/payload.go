@@ -1,6 +1,8 @@
 package app
 
 import (
+	"fmt"
+
 	"github.com/atij/slack-poll/model"
 	"github.com/gin-gonic/gin"
 	"github.com/slack-go/slack"
@@ -41,7 +43,7 @@ func getPollResponse(p *model.Poll) *slack.Message {
 
 	blocks := []slack.Block{
 		slack.NewSectionBlock(
-			slack.NewTextBlockObject("mrkdwn", p.Title, false, false),
+			slack.NewTextBlockObject("mrkdwn", "*"+p.Title+"* Poll by " + p.Owner.UserName, false, false),
 			nil,
 			nil,
 		),
@@ -49,25 +51,40 @@ func getPollResponse(p *model.Poll) *slack.Message {
 	}
 
 	for _, item := range p.Options {
-		be := slack.NewButtonBlockElement(p.ID + "::" + item.Title, item.Title, slack.NewTextBlockObject("plain_text", item.Title, false, false))
+		be := slack.NewButtonBlockElement(p.ID+"::"+item.Title, item.Title, slack.NewTextBlockObject("plain_text", "vote", false, false))
 		bk := slack.NewSectionBlock(slack.NewTextBlockObject("mrkdwn", item.Title, false, false), nil, slack.NewAccessory(be))
-		
+
 		blocks = append(blocks, bk)
 
 		var voters []slack.MixedElement
 		for _, v := range item.Votes {
 			voters = append(voters, *slack.NewImageBlockElement(v.Avatar, v.UserName))
 		}
+
+		v := len(voters)
+		var m string
+		switch v {
+		case 0:
+			m = "No votes"
+		case 1:
+			m = "1 vote"
+		default:
+			m = fmt.Sprintf("%d votes", len(voters))
+		}
+
+		voters = append(voters, slack.NewTextBlockObject("plain_text", m, false, false))
+
 		if len(voters) != 0 {
-			ct := slack.NewContextBlock(item.Title + " voters", voters...)
+			ct := slack.NewContextBlock(item.Title+" voters", voters...)
 			blocks = append(blocks, ct)
 		}
 
 	}
 
 	blocks = append(blocks, slack.NewDividerBlock())
-	ab := slack.NewActionBlock(p.ID + "::actions", slack.NewButtonBlockElement(p.ID+ "::addOption", "Add Option", slack.NewTextBlockObject("plain_text", "Add Option", true, false)))
-	blocks = append(blocks, ab)
+
+	//ab := slack.NewActionBlock(p.ID + "::actions", slack.NewButtonBlockElement(p.ID+ "::addOption", "Add Option", slack.NewTextBlockObject("plain_text", "Add Option", true, false)))
+	//blocks = append(blocks, ab)
 
 	msg := slack.NewBlockMessage(blocks...)
 	msg.Msg.ReplaceOriginal = true
@@ -75,4 +92,3 @@ func getPollResponse(p *model.Poll) *slack.Message {
 
 	return &msg
 }
-
