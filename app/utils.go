@@ -19,7 +19,15 @@ func splitOptions(s string) []string {
 	for _, item := range options {
 		res = append(res, strings.ReplaceAll(item, "\"", ""))
 	}
-	return res
+
+	// remove empty options
+	var result []string
+	for _, i := range res {
+		if i!= "" {
+			result = append(result, i)	
+		}
+	}
+	return result
 }
 
 func createPoll(c *slack.SlashCommand, options []string) (*model.Poll, error) {

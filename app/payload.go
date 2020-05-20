@@ -31,6 +31,17 @@ func getHelpReponse(c *gin.Context) *slack.Message {
 			nil,
 			nil,
 		),
+		slack.NewDividerBlock(),
+		slack.NewSectionBlock(
+			slack.NewTextBlockObject("mrkdwn", "*Anonymous poll*", false, false),
+			nil,
+			nil,
+		),
+		slack.NewSectionBlock(
+			slack.NewTextBlockObject("mrkdwn", "\n/am-poll \"What's your favourite color ?\" \"Red\" \"Green\" \"Blue\" \"Yellow\" anonymous\n", false, false),
+			nil,
+			nil,
+		),
 	}
 
 	msg := slack.NewBlockMessage(blocks...)
@@ -41,14 +52,23 @@ func getHelpReponse(c *gin.Context) *slack.Message {
 // Poll response ...
 func getPollResponse(p *model.Poll) *slack.Message {
 
-	blocks := []slack.Block{
+	var blocks []slack.Block
+
+	var txt string
+	if p.Mode.Anonymous {
+		txt = "*"+p.Title+"* Anonymous poll created by @" + p.Owner.UserName
+	} else {
+		txt = "*"+p.Title+"* Poll created by @" + p.Owner.UserName
+	}
+
+	blocks = append(blocks,
 		slack.NewSectionBlock(
-			slack.NewTextBlockObject("mrkdwn", "*"+p.Title+"* Poll by " + p.Owner.UserName, false, false),
+			slack.NewTextBlockObject("mrkdwn", txt, false, false),
 			nil,
 			nil,
 		),
 		slack.NewDividerBlock(),
-	}
+	)
 
 	for _, item := range p.Options {
 		be := slack.NewButtonBlockElement(p.ID+"::"+item.Title, item.Title, slack.NewTextBlockObject("plain_text", "vote", false, false))
@@ -58,7 +78,11 @@ func getPollResponse(p *model.Poll) *slack.Message {
 
 		var voters []slack.MixedElement
 		for _, v := range item.Votes {
-			voters = append(voters, *slack.NewImageBlockElement(v.Avatar, v.UserName))
+			if p.Mode.Anonymous {
+				voters = append(voters, *slack.NewTextBlockObject("plain_text", ":thumbsup:", true, false))
+			} else {
+				voters = append(voters, *slack.NewImageBlockElement(v.Avatar, v.UserName))
+			}
 		}
 
 		v := len(voters)
@@ -78,13 +102,9 @@ func getPollResponse(p *model.Poll) *slack.Message {
 			ct := slack.NewContextBlock(item.Title+" voters", voters...)
 			blocks = append(blocks, ct)
 		}
-
 	}
 
 	blocks = append(blocks, slack.NewDividerBlock())
-
-	//ab := slack.NewActionBlock(p.ID + "::actions", slack.NewButtonBlockElement(p.ID+ "::addOption", "Add Option", slack.NewTextBlockObject("plain_text", "Add Option", true, false)))
-	//blocks = append(blocks, ab)
 
 	msg := slack.NewBlockMessage(blocks...)
 	msg.Msg.ReplaceOriginal = true

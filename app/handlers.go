@@ -39,6 +39,14 @@ func command(c *gin.Context) {
 		return
 	}
 
+	mode := model.Mode{Anonymous: false}
+
+	// find poll options
+	if strings.Contains(sc.Text, "anonymous") {
+		mode.Anonymous = true
+		sc.Text = strings.ReplaceAll(sc.Text, "anonymous", "")
+	}
+
 	// clear quoutes
 	sc.Text = cleanDoubleQuotes(sc.Text)
 
@@ -52,6 +60,9 @@ func command(c *gin.Context) {
 			"message": err,
 		})
 	}
+
+	// set mode
+	poll.Mode = mode
 
 	// create poll in db
 	db := c.MustGet("db").(*repository.FirestoreRepository)

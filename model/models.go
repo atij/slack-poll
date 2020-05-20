@@ -10,6 +10,7 @@ type Poll struct {
 	Channel string
 	Title   string
 	Options []PollOption
+	Mode    Mode
 }
 
 // PollOption ...
@@ -29,6 +30,12 @@ type Vote struct {
 type Owner struct {
 	UserID   string
 	UserName string
+}
+
+// Mode ...
+type Mode struct {
+	Anonymous bool
+	VoteLimit int
 }
 
 // AddVote ...
